@@ -13,7 +13,7 @@ namespace Synth1
         private const int SAMPLE_RATE = 44100; //how many samples of audio we want to generate for every second (44100 numbers representing the amplitude for every second of audio)
         private const short BITS_PER_SAMPLE = 16; //bit depth; what can be the maximum value of every sample (every sample can have up to 16 digits in binary)
         public Synth1()
-        { 
+        {
             InitializeComponent();
         }
 
@@ -22,9 +22,18 @@ namespace Synth1
             short[] wave = new short[SAMPLE_RATE];
             byte[] binaryWave = new byte[SAMPLE_RATE * sizeof(short)]; //data of wave divided into bytes
             float frequency = 440f;
-            for (int i = 0; i < SAMPLE_RATE; i++)
+            foreach (Oscillator oscillator in this.Controls.OfType<Oscillator>())
             {
-                wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * frequency) / SAMPLE_RATE) * i)); //sine wave table
+                switch (oscillator.WaveForm)
+                {
+                    case WaveForm.Sine:
+                        for (int i = 0; i < SAMPLE_RATE; i++)
+                        {
+                            wave[i] = Convert.ToInt16(short.MaxValue * Math.Sin(((Math.PI * 2 * frequency) / SAMPLE_RATE) * i)); //sine wave table
+                        }
+                        break;
+                
+            }
             }
             Buffer.BlockCopy(wave, 0, binaryWave, 0, wave.Length * sizeof(short)); //splitting every short into 2 bytes
             using (MemoryStream memoryStream = new MemoryStream())
@@ -62,10 +71,9 @@ namespace Synth1
                 new SoundPlayer(memoryStream).Play();
             }
         }
-
-        private void Synth1_Load(object sender, EventArgs e)
-        {
-
-        }
+    }
+    public enum WaveForm
+    {
+        Sine, Square, Saw, Triangle, Noise
     }
 }
